@@ -23,6 +23,7 @@ class StorageManager: NSObject {
         }
     }
 
+    // swiftlint:disable:next function_parameter_count
     public func createOrUpdateAlbum(artistId: Int,
                                     artistName: String,
                                     collectionName: String,
@@ -75,7 +76,9 @@ class StorageManager: NSObject {
     }
 
     func fetchAlbums(for searchTerm: String) -> [RealmAlbum] {
-        let results = realm.objects(RealmAlbum.self).filter("term == %@", searchTerm).sorted(byKeyPath: "collectionName", ascending: true)
+        let results = realm.objects(RealmAlbum.self).filter("term == %@", searchTerm).sorted(
+            byKeyPath: "collectionName",
+            ascending: true)
         return Array(results)
     }
 
@@ -110,4 +113,3 @@ extension StorageManager {
         }
     }
 }
-

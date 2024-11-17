@@ -29,4 +29,3 @@ class SearchTerm: Object {
         return "term"
     }
 }
-
