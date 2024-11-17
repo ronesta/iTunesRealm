@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct PostAlbums: Codable {
+struct PostAlbums: Decodable {
     let results: [Album]
 }
 
-struct Album: Codable {
+struct Album: Decodable {
     let artistId: Int
     let artistName: String
     let collectionName: String

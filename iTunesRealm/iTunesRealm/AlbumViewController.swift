@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 
 final class AlbumViewController: UIViewController {
-    var album: Album?
+    var album: RealmAlbum?
 
     private let albumImageView: UIImageView = {
         let image = UIImageView()
@@ -83,6 +83,12 @@ final class AlbumViewController: UIViewController {
             return
         }
 
+        guard let imageData = StorageManager.shared.fetchImageData(forImageId: album.artistId),
+              let image = UIImage(data: imageData) else {
+            return
+        }
+
+        albumImageView.image = image
         albumNameLabel.text = album.collectionName
         artistNameLabel.text = album.artistName
         collectionPriceLabel.text = "\(album.collectionPrice) $"

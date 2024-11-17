@@ -36,7 +36,7 @@ final class SearchViewController: UIViewController {
         return collectionView
     }()
 
-    var albums = [Album]()
+    var albums = [RealmAlbum]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,6 +61,49 @@ final class SearchViewController: UIViewController {
     }
 
     func searchAlbums(with term: String) {
+        self.albums = StorageManager.shared.fetchAlbums(for: term)
+
+        guard self.albums.isEmpty else {
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
+            return
+        }
+
+        NetworkManager.shared.fetchAlbums(albumName: term) { [weak self] result, error in
+            if let error {
+                print("Error getting albums: \(error)")
+                return
+            }
+
+            guard let result else {
+                return
+            }
+
+            var albumsToSave: [(album: Album, imageData: Data)] = []
+
+            result.forEach { res in
+                guard let url = URL(string: res.artworkUrl100) else {
+                    print("Invalid URL for album image")
+                    return
+                }
+
+                do {
+                    let imageData = try Data(contentsOf: url)
+                    albumsToSave.append((album: res, imageData: imageData))
+                } catch {
+                    print("Failed to load image data: \(error)")
+                }
+            }
+
+            StorageManager.shared.saveAlbums(albumsToSave, for: term)
+            print("Successfully loaded \(albumsToSave.count) albums.")
+
+            DispatchQueue.main.async {
+                self?.albums = StorageManager.shared.fetchAlbums(for: term)
+                self?.collectionView.reloadData()
+            }
+        }
     }
 }
 
@@ -80,7 +123,13 @@ extension SearchViewController: UICollectionViewDataSource {
         }
 
         let album = albums[indexPath.item]
-        let urlString = album.artworkUrl100
+
+        guard let imageData = StorageManager.shared.fetchImageData(forImageId: album.artistId),
+              let image = UIImage(data: imageData) else {
+            return cell
+        }
+
+        cell.configure(with: album, image: image)
         return cell
     }
 }
@@ -103,6 +152,7 @@ extension SearchViewController: UISearchBarDelegate {
         guard let searchTerm = searchBar.text, !searchTerm.isEmpty else {
             return
         }
+        StorageManager.shared.saveSearchTerm(searchTerm)
         searchAlbums(with: searchTerm)
     }
 }
