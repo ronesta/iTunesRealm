@@ -45,6 +45,8 @@ class SearchHistoryViewController: UIViewController {
     }
 
     func updateSearchHistory() {
+        searchHistory = StorageManager.shared.getSearchHistory()
+        self.tableView.reloadData()
     }
 }
 
@@ -69,6 +71,7 @@ extension SearchHistoryViewController: UITableViewDelegate {
 
     func performSearch(for term: String) {
         let searchViewController = SearchViewController()
+        searchViewController.searchAlbums(with: term)
         navigationController?.pushViewController(searchViewController, animated: true)
     }
 }

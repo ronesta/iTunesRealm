@@ -36,6 +36,8 @@ final class SearchViewController: UIViewController {
         return collectionView
     }()
 
+    var albums = [Album]()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
@@ -47,6 +49,7 @@ final class SearchViewController: UIViewController {
         view.addSubview(collectionView)
         navigationItem.titleView = searchBar
 
+        searchBar.delegate = self
         collectionView.dataSource = self
         collectionView.delegate = self
 
@@ -57,14 +60,14 @@ final class SearchViewController: UIViewController {
         }
     }
 
-    func searchAlbums() {
+    func searchAlbums(with term: String) {
     }
 }
 
 // MARK: - UICollectionViewDataSource
 extension SearchViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        5
+        albums.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -75,6 +78,9 @@ extension SearchViewController: UICollectionViewDataSource {
                 as? AlbumCollectionViewCell else {
             return UICollectionViewCell()
         }
+
+        let album = albums[indexPath.item]
+        let urlString = album.artworkUrl100
         return cell
     }
 }
@@ -84,6 +90,19 @@ extension SearchViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
         let albumViewController = AlbumViewController()
+        let album = albums[indexPath.item]
+        albumViewController.album = album
         navigationController?.pushViewController(albumViewController, animated: true)
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension SearchViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+        guard let searchTerm = searchBar.text, !searchTerm.isEmpty else {
+            return
+        }
+        searchAlbums(with: searchTerm)
     }
 }

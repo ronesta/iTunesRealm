@@ -10,6 +10,8 @@ import UIKit
 import SnapKit
 
 final class AlbumViewController: UIViewController {
+    var album: Album?
+
     private let albumImageView: UIImageView = {
         let image = UIImageView()
         image.layer.cornerRadius = 15
@@ -77,5 +79,12 @@ final class AlbumViewController: UIViewController {
     }
 
     private func setupAlbum() {
+        guard let album else {
+            return
+        }
+
+        albumNameLabel.text = album.collectionName
+        artistNameLabel.text = album.artistName
+        collectionPriceLabel.text = "\(album.collectionPrice) $"
     }
 }
